@@ -1,6 +1,8 @@
 package mergesort;
 
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Merge Sort via threads
@@ -11,8 +13,13 @@ public class Mergesort
 {
     public static void main(String[] args)
     {
-        Integer[] array = {2, 6, 5, 3, 1};
-        
+        Integer [] array = new Integer[10000];
+        for(int i=0; i<10000; i++)
+        {
+            array[i] = (int) (Math.random() * 100000);
+        }
+        //String[] array = {"Sudan", "United States", "Indiana", "Europe", "But", "Bua"};
+
         //Start Merge -- This will start 2 threads
         mergeSort(array);
         
@@ -21,7 +28,7 @@ public class Mergesort
             avoid not being able to see the data
         */
         try{
-            Thread.sleep(1);
+            //Thread.sleep(10000);
             System.out.println(Arrays.toString(array));
         }
         catch(Exception e)
@@ -40,12 +47,14 @@ public class Mergesort
     
     //Main merge sort method (non-array constructor)
     private static void mergeSort(Comparable [ ] a, Comparable [ ] tmp, 
-            int left, int right)
+        int left, int right)
     {
         if( left < right )
         {
+            //System.out.println(Arrays.toString(a));
+            
             int center = (left + right) / 2;
-
+            
             //Thread One -- left
             Thread threadOne = new Thread() {
                 @Override
@@ -63,17 +72,23 @@ public class Mergesort
                 }
             };
             
+
             //Run all threads
             threadOne.start();
             threadTwo.start();    
-            
+            try {
+                threadOne.join();
+                threadTwo.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Mergesort.class.getName()).log(Level.SEVERE, null, ex);
+            }
             merge(a, tmp, left, center + 1, right);
         }
     }
 
     //Merge data
     private static void merge(Comparable[ ] a, Comparable[ ] tmp, int left, 
-            int right, int rightEnd )
+        int right, int rightEnd )
     {
         int leftEnd = right - 1;
         int k = left;
