@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +33,7 @@ public class UserInterface extends javax.swing.JFrame {
     private int[] burstTime;
     private DefaultListModel readyQueue;
     private DefaultListModel doneQueue;
+    private javax.swing.Timer myTimer;
     
     class Task extends SwingWorker<Void, Void> {
         /*
@@ -45,7 +47,7 @@ public class UserInterface extends javax.swing.JFrame {
             jList3.setModel(doneQueue);
             
             jProgressBar1.setValue(0);
-
+            
             String processID = "";
             for(int index = 0; index < listOfProcesses.size(); index++)
             {
@@ -94,6 +96,7 @@ public class UserInterface extends javax.swing.JFrame {
             jProgressBar1.setValue(100);
             jProgressBar2.setValue(0);
             jLabel9.setText("");
+            myTimer.stop();
         }
     }
 
@@ -102,82 +105,9 @@ public class UserInterface extends javax.swing.JFrame {
      */
     public UserInterface() {
         initComponents();
-        pBar = jProgressBar2;
     }
-    
-    private JProgressBar pBar;
-    
-    public void viewBar(int[] burstTime, DefaultListModel doneQueue, DefaultListModel readyQueue) throws InterruptedException {
+ 
 
-        for(int i =0; i < jProgressBar1.getMaximum(); i++)
-        {
-            jProgressBar1.setValue(i);
-        }
-        Thread.sleep(100);
-        
-        jProgressBar1.setStringPainted(true);
-        jProgressBar1.setValue(0);
-        jProgressBar2.setStringPainted(true);
-        jProgressBar2.setValue(0);
-        
-        //jProgressBar2.setIndeterminate(true);
-        //jProgressBar1.setIndeterminate(true);
-        
-        //Now to start the jobs            
-        int timerDelay = 0;
-        for(int i = 0; i < listOfProcesses.size(); i++)
-        {
-            timerDelay += burstTime[i];
-        }
-        
-        int index = 0;
-            
-
-        String processID = "";
-
-        if(index == 0)
-        {
-            doneQueue.removeAllElements();
-            jList3.setModel(doneQueue);
-        }
-
-        //Is the progress bar progressing?
-        if (index  < listOfProcesses.size()) {        
-            for(int i =0; i <= 100; i++)
-            {
-                if(i == 0)
-                {
-                    jProgressBar2.setValue(0);
-
-                    jList2.setSelectedIndex(0);
-                    processID = jList2.getSelectedValue();
-                    jLabel9.setText(processID);
-
-                    readyQueue.remove(0);
-                    jList2.setModel(readyQueue);
-                }
-
-                if(i < 100)
-                {
-                    jProgressBar2.setValue(i);
-
-                }
-                else if(i == 100){
-                    jProgressBar2.setValue(100);
-                    jProgressBar1.setValue( 100 - (100 / (index + 1)));
-                    index++;
-                    doneQueue.addElement(processID);
-                    jList3.setModel(doneQueue);
-                }
-            }
-        }
-
-        //Main progress bar done?
-        else {
-            jProgressBar1.setValue(100);
-            jLabel9.setText("");
-       }                  
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -210,6 +140,8 @@ public class UserInterface extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        yourClock = new javax.swing.JLabel();
 
         jTextField2.setText("jTextField2");
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
@@ -271,6 +203,10 @@ public class UserInterface extends javax.swing.JFrame {
 
         jLabel10.setText("Total Progress:");
 
+        jLabel11.setText("Time:");
+
+        yourClock.setText("0");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -280,6 +216,10 @@ public class UserInterface extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel10)
+                        .addGap(96, 96, 96)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(yourClock)
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -355,8 +295,11 @@ public class UserInterface extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel11)
+                    .addComponent(yourClock))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 26, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -408,8 +351,7 @@ public class UserInterface extends javax.swing.JFrame {
                 model.addElement("P" + (i + 1));
             }
             
-            jList1.setModel(model);
-            jList1.updateUI();
+
             
             
             jList1.addListSelectionListener(new ListSelectionListener()
@@ -433,6 +375,9 @@ public class UserInterface extends javax.swing.JFrame {
         {
             JOptionPane.showMessageDialog(null,"Please Enter an Integer", "Error",  JOptionPane.WARNING_MESSAGE); 
         }
+        
+        //Ignore exception based in a swing warning
+        jList1.setModel(model);
     }//GEN-LAST:event_btn1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -500,7 +445,18 @@ public class UserInterface extends javax.swing.JFrame {
                 readyQueue.addElement(listOfProcesses.get(i));
             }
             jList2.setModel(readyQueue);
-            //viewBar(burstTime, doneQueue, readyQueue);
+            long startTime = System.nanoTime();
+
+            myTimer = new javax.swing.Timer(0, new ActionListener(){
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    long totalTime = System.nanoTime() - startTime;
+                    yourClock.setText(Long.toString(TimeUnit.NANOSECONDS.toSeconds(totalTime)) + " Second(s)");
+                }
+            });
+            myTimer.start();
+
+            //Start Simulation Task
             Task task = new Task();
             task.execute();
         }
@@ -554,6 +510,7 @@ public class UserInterface extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -573,5 +530,6 @@ public class UserInterface extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JLabel yourClock;
     // End of variables declaration//GEN-END:variables
 }
